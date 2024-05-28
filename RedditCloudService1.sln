@@ -7,7 +7,7 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "RedditCloudService1", "Redd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedditService_WebRole", "RedditService_WebRole\RedditService_WebRole.csproj", "{E430D9F5-E0CC-49C4-9B5A-2DFF4E47E8E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersService_Data", "UsersService_Data\UsersService_Data.csproj", "{C3857B91-D58C-4BC4-9B08-A098FC1AADFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedditService_Data", "UsersService_Data\RedditService_Data.csproj", "{C3857B91-D58C-4BC4-9B08-A098FC1AADFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
