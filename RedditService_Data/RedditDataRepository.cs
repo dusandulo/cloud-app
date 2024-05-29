@@ -72,5 +72,10 @@ namespace RedditService_Data
             TableOperation insertOperation = TableOperation.Insert(newComment);
             _commentTable.Execute(insertOperation);
         }
+
+        public bool Exists(string indexNo)
+        {
+            return RetrieveAllTopics().Where(t => t.RowKey == indexNo).FirstOrDefault() != null;
+        }
     }
 }

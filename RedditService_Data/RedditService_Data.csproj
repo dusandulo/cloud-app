@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Comment.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueueHelper.cs" />
     <Compile Include="RedditDataRepository.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="User.cs" />

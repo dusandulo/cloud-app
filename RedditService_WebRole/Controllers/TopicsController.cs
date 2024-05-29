@@ -1,10 +1,16 @@
-﻿using RedditService_Data;
+﻿using Microsoft.Azure;
+using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
+using RedditService_Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Xml.Linq;
 
 namespace RedditService.Controllers
 {
@@ -17,57 +23,47 @@ namespace RedditService.Controllers
             _repository = new RedditDataRepository();
         }
 
-        public async Task<IActionResult> Index()
+        public ActionResult Index() // reseno
         {
-            var topics = await _repository.RetrieveAllTopicsAsync();
+            var topics = _repository.RetrieveAllTopics();
             return View(topics);
         }
 
-        public IActionResult Create()
+        public ActionResult Create() // reseno
         {
-            return View();
+            return View("AddTopic");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Topic topic)
+        public ActionResult AddTopic(String RowKey, String Title, String Content, HttpPostedFileBase file)
         {
-            if (ModelState.IsValid)
+            try
             {
-                topic.CreatedAt = DateTime.Now;
-                topic.RowKey = Guid.NewGuid().ToString();
-                await _repository.AddTopicAsync(topic);
-                return RedirectToAction(nameof(Index));
+                if (_repository.Exists(RowKey))
+                {
+                    return View("Error");
+                }
+
+                string uniqueBlobName = string.Format("image_{0}", RowKey);
+                var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
+                CloudBlobClient blobStorage = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobStorage.GetContainerReference("roland");
+                CloudBlockBlob blob = container.GetBlockBlobReference(uniqueBlobName);
+                blob.Properties.ContentType = file.ContentType;
+
+
+                // postavljanje odabrane datoteke (slike) u blob servis koristeci blob klijent
+                blob.UploadFromStream(file.InputStream);
+                // upis studenta u table storage koristeci StudentDataRepository klasu
+                Topic entry = new Topic(RowKey) { Title = Title, Content = Content, ImageUrl = blob.Uri.ToString(), CreatedAt = DateTime.Now, Downvotes = 0, Upvotes = 0}; // + UserId
+                _repository.AddTopic(entry);
+
+                CloudQueue queue = QueueHelper.GetQueueReference("roland");
+                queue.AddMessage(new CloudQueueMessage(RowKey), null, TimeSpan.FromMilliseconds(30));
+
+                return RedirectToAction("Index");
             }
-            return View(topic);
-        }
-
-        public async Task<IActionResult> Details(string id)
-        {
-            var topic = (await _repository.RetrieveAllTopicsAsync()).FirstOrDefault(t => t.RowKey == id);
-            if (topic == null)
-            {
-                return NotFound();
-            }
-            var comments = (await _repository.RetrieveAllCommentsAsync()).Where(c => c.TopicId == id).ToList();
-            ViewBag.Comments = comments;
-            return View(topic);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AddComment(string topicId, string content)
-        {
-            var comment = new Comment
-            {
-                Content = content,
-                CreatedAt = DateTime.Now,
-                RowKey = Guid.NewGuid().ToString(),
-                TopicId = topicId,
-                UserId = User.Identity.Name // Assuming you have user identity setup
-            };
-
-            await _repository.AddCommentAsync(comment);
-            // Send notification logic here (if needed)
-            return RedirectToAction(nameof(Details), new { id = topicId });
+            catch { return RedirectToAction("AddTopic"); }
         }
     }
 }
