@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure;
+using Microsoft.Azure;
 
 namespace RedditService_Data
 {
@@ -45,12 +45,10 @@ namespace RedditService_Data
             _userTable.Execute(insertOperation);
         }
 
-        public IQueryable<Topic> RetrieveAllTopics()
+        public List<Topic> RetrieveAllTopics()
         {
-            var results = from g in _topicTable.CreateQuery<Topic>()
-                          where g.PartitionKey == "Topic"
-                          select g;
-            return results;
+            var query = new TableQuery<Topic>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Topic"));
+            return _topicTable.ExecuteQuery(query).ToList();
         }
 
         public void AddTopic(Topic newTopic)

@@ -5,12 +5,9 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Microsoft.WindowsAzure.Storage.Queue;
 using RedditService_Data;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Xml.Linq;
 
 namespace RedditService.Controllers
 {
@@ -23,47 +20,87 @@ namespace RedditService.Controllers
             _repository = new RedditDataRepository();
         }
 
-        public ActionResult Index() // reseno
+        public ActionResult Index()
         {
-            var topics = _repository.RetrieveAllTopics();
-            return View(topics);
+            try
+            {
+                var topics = _repository.RetrieveAllTopics().ToList();
+
+                // Log the topics
+                System.Diagnostics.Debug.WriteLine("Retrieved topics count: " + topics.Count);
+                foreach (var topic in topics)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Topic - RowKey: {topic.RowKey}, Title: {topic.Title}, Content: {topic.Content}, ImageUrl: {topic.ImageUrl}");
+                }
+
+                return View(topics);
+            }
+            catch (StorageException ex)
+            {
+                // Log the exception details
+                System.Diagnostics.Debug.WriteLine("StorageException: " + ex.Message);
+                // Handle the exception as needed, possibly return an error view
+                return View("Error", new HandleErrorInfo(ex, "Topics", "Index"));
+            }
         }
 
-        public ActionResult Create() // reseno
+        public ActionResult Create()
         {
             return View("AddTopic");
         }
 
         [HttpPost]
-        public ActionResult AddTopic(String RowKey, String Title, String Content, HttpPostedFileBase file)
+        public ActionResult AddTopic(string RowKey, string Title, string Content, HttpPostedFileBase file)
         {
-            try
+            if (file != null && file.ContentLength > 0)
             {
-                if (_repository.Exists(RowKey))
+                try
                 {
-                    return View("Error");
+                    string uniqueBlobName = $"image_{RowKey}";
+                    var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
+                    var blobClient = storageAccount.CreateCloudBlobClient();
+                    var container = blobClient.GetContainerReference("roland");
+                    container.CreateIfNotExists();
+                    var blob = container.GetBlockBlobReference(uniqueBlobName);
+                    blob.Properties.ContentType = file.ContentType;
+
+                    blob.UploadFromStream(file.InputStream);
+
+                    var entry = new Topic(RowKey)
+                    {
+                        Title = Title,
+                        Content = Content,
+                        ImageUrl = blob.Uri.ToString(),
+                        CreatedAt = DateTime.UtcNow,
+                        Downvotes = 0,
+                        Upvotes = 0
+                    };
+
+                    _repository.AddTopic(entry);
+
+                    var queue = storageAccount.CreateCloudQueueClient().GetQueueReference("roland");
+                    queue.CreateIfNotExists();
+                    queue.AddMessage(new CloudQueueMessage(RowKey));
+
+                    return RedirectToAction("Index");
                 }
-
-                string uniqueBlobName = string.Format("image_{0}", RowKey);
-                var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
-                CloudBlobClient blobStorage = storageAccount.CreateCloudBlobClient();
-                CloudBlobContainer container = blobStorage.GetContainerReference("roland");
-                CloudBlockBlob blob = container.GetBlockBlobReference(uniqueBlobName);
-                blob.Properties.ContentType = file.ContentType;
-
-
-                // postavljanje odabrane datoteke (slike) u blob servis koristeci blob klijent
-                blob.UploadFromStream(file.InputStream);
-                // upis studenta u table storage koristeci StudentDataRepository klasu
-                Topic entry = new Topic(RowKey) { Title = Title, Content = Content, ImageUrl = blob.Uri.ToString(), CreatedAt = DateTime.Now, Downvotes = 0, Upvotes = 0}; // + UserId
-                _repository.AddTopic(entry);
-
-                CloudQueue queue = QueueHelper.GetQueueReference("roland");
-                queue.AddMessage(new CloudQueueMessage(RowKey), null, TimeSpan.FromMilliseconds(30));
-
-                return RedirectToAction("Index");
+                catch (StorageException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("StorageException: " + ex.Message);
+                    ModelState.AddModelError("", "A storage error occurred while creating the topic: " + ex.Message);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
+                    ModelState.AddModelError("", "An error occurred while creating the topic: " + ex.Message);
+                }
             }
-            catch { return RedirectToAction("AddTopic"); }
+            else
+            {
+                ModelState.AddModelError("", "Please upload a valid image file.");
+            }
+
+            return View("AddTopic");
         }
     }
 }
