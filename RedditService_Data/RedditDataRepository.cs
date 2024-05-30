@@ -75,5 +75,21 @@ namespace RedditService_Data
         {
             return RetrieveAllTopics().Where(t => t.RowKey == indexNo).FirstOrDefault() != null;
         }
+
+        //delete
+
+        public void DeleteTopic(string rowKey)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Topic>("Topic", rowKey);
+            var retrievedResult = _topicTable.Execute(retrieveOperation);
+            var deleteEntity = (Topic)retrievedResult.Result;
+
+            if (deleteEntity != null)
+            {
+                // Delete the topic
+                var deleteOperation = TableOperation.Delete(deleteEntity);
+                _topicTable.Execute(deleteOperation);
+            }
+        }
     }
 }

@@ -102,5 +102,63 @@ namespace RedditService.Controllers
 
             return View("AddTopic");
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(string id)
+        {
+            try
+            {
+                var topic = _repository.RetrieveAllTopics().FirstOrDefault(t => t.RowKey == id);
+                if (topic != null)
+                {
+                    // Delete blob
+                    var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
+                    var blobClient = storageAccount.CreateCloudBlobClient();
+                    var container = blobClient.GetContainerReference("roland");
+                    var blob = container.GetBlockBlobReference($"image_{id}");
+
+                    if (blob.Exists())
+                    {
+                        blob.Delete();
+                    }
+
+                    // Delete topic
+                    _repository.DeleteTopic(id);
+
+                    // Optionally, delete from queue if necessary
+                    var queue = storageAccount.CreateCloudQueueClient().GetQueueReference("roland");
+                    if (queue.Exists())
+                    {
+                        var messages = queue.GetMessages(32);
+                        foreach (var message in messages)
+                        {
+                            if (message.AsString == id)
+                            {
+                                queue.DeleteMessage(message);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (StorageException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("StorageException: " + ex.Message);
+                return View("Error", new HandleErrorInfo(ex, "Topics", "Delete"));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
+                return View("Error", new HandleErrorInfo(ex, "Topics", "Delete"));
+            }
+        }
+
+
+
+
     }
 }
