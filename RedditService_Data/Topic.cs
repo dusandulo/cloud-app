@@ -40,6 +40,16 @@ namespace RedditService_Data
             CreatedAt = DateTime.MinValue;
             UserId = string.Empty;
         }
+
+        public void Upvote()
+        {
+            Upvotes++;
+        }
+
+        public void Downvote()
+        {
+            Downvotes++;
+        }
     }
 }
 

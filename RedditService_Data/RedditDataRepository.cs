@@ -91,5 +91,35 @@ namespace RedditService_Data
                 _topicTable.Execute(deleteOperation);
             }
         }
+
+        //upvote downvote
+
+        public void UpvoteTopic(string topicId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Topic>("Topic", topicId);
+            var retrievedResult = _topicTable.Execute(retrieveOperation);
+            var topic = (Topic)retrievedResult.Result;
+
+            if (topic != null)
+            {
+                topic.Upvote();
+                var updateOperation = TableOperation.Replace(topic);
+                _topicTable.Execute(updateOperation);
+            }
+        }
+
+        public void DownvoteTopic(string topicId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Topic>("Topic", topicId);
+            var retrievedResult = _topicTable.Execute(retrieveOperation);
+            var topic = (Topic)retrievedResult.Result;
+
+            if (topic != null)
+            {
+                topic.Downvote();
+                var updateOperation = TableOperation.Replace(topic);
+                _topicTable.Execute(updateOperation);
+            }
+        }
     }
 }

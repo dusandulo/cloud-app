@@ -113,7 +113,6 @@ namespace RedditService.Controllers
                 var topic = _repository.RetrieveAllTopics().FirstOrDefault(t => t.RowKey == id);
                 if (topic != null)
                 {
-                    // Delete blob
                     var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
                     var blobClient = storageAccount.CreateCloudBlobClient();
                     var container = blobClient.GetContainerReference("roland");
@@ -124,10 +123,8 @@ namespace RedditService.Controllers
                         blob.Delete();
                     }
 
-                    // Delete topic
                     _repository.DeleteTopic(id);
 
-                    // Optionally, delete from queue if necessary
                     var queue = storageAccount.CreateCloudQueueClient().GetQueueReference("roland");
                     if (queue.Exists())
                     {
@@ -157,6 +154,40 @@ namespace RedditService.Controllers
             }
         }
 
+        //upvote downvote
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Upvote(string id)
+        {
+            try
+            {
+                _repository.UpvoteTopic(id);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
+                return View("Error", new HandleErrorInfo(ex, "Topics", "Upvote"));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Downvote(string id)
+        {
+            try
+            {
+                _repository.DownvoteTopic(id);
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
+                return View("Error", new HandleErrorInfo(ex, "Topics", "Downvote"));
+            }
+        }
 
 
 
