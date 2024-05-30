@@ -31,12 +31,10 @@ namespace RedditService_Data
             _commentTable.CreateIfNotExists();
         }
 
-        public IQueryable<User> RetrieveAllUsers()
+        public List<User> RetrieveAllUsers()
         {
-            var results = from g in _userTable.CreateQuery<User>()
-                          where g.PartitionKey == "User"
-                          select g;
-            return results;
+            var query = new TableQuery<User>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "User"));
+            return _userTable.ExecuteQuery(query).ToList();
         }
 
         public void AddUser(User newUser)

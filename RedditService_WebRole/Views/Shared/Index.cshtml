@@ -10,7 +10,8 @@
 </head>
 <h2>Index</h2>
 <p>@Html.ActionLink("Create New", "Create")</p>
-<p>@Html.ActionLink("Register User", "Register")</p>
+<p>@Html.ActionLink("Register User", "ShowRegister", "Register")</p>
+<p>@Html.ActionLink("View Users", "ShowListUsers", "Register")</p>
 <table>
     @foreach (var item in Model)
     {

@@ -24,7 +24,16 @@ namespace RedditService_WebRole.Controllers
         {
             return View();
         }
-
+        public ActionResult ShowListUsers()
+        {
+            var users = _repository.RetrieveAllUsers().ToList();
+            return View("ListUsers", users);
+        }
+        public ActionResult Index()
+        {
+                var users = _repository.RetrieveAllUsers().ToList();
+                return View(users);
+        }
         public ActionResult Register()
         {
             return View("RegisterUser");
@@ -32,7 +41,7 @@ namespace RedditService_WebRole.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult RegisterUser(string FirstName, string LastName, string Address, string City, string Contry, string PhoneNumber, string Email, string Password, HttpPostedFileBase file)
+        public ActionResult RegisterUser(string FirstName, string LastName, string Address, string City, string Country, string PhoneNumber, string Email, string Password, HttpPostedFileBase file)
         {
             if (file != null && file.ContentLength > 0)
             {
@@ -48,17 +57,17 @@ namespace RedditService_WebRole.Controllers
 
                     blob.UploadFromStream(file.InputStream);
 
-                    var newUser = new User()
+                    var newUser = new User(Email)
                     {
                         FirstName = FirstName,
                         LastName = LastName,
                         Address = Address,
                         City = City,
-                        Country = Contry,
+                        Country = Country,
                         PhoneNumber = PhoneNumber,
                         Email = Email,
                         Password = Password,
-                        ProfilePictureUrl = blob.Uri.ToString()
+                        ProfilePictureUrl = blob.Uri.ToString(),
                     };
 
                     _repository.AddUser(newUser);
@@ -67,7 +76,7 @@ namespace RedditService_WebRole.Controllers
                     queue.CreateIfNotExists();
                     queue.AddMessage(new CloudQueueMessage(Email));
 
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", "Topics");
                 }
                 catch (StorageException ex)
                 {
