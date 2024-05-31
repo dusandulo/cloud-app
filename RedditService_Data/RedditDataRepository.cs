@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure;
+using System.Runtime.Remoting.Contexts;
 
 namespace RedditService_Data
 {
@@ -117,6 +118,26 @@ namespace RedditService_Data
                 topic.Downvote();
                 var updateOperation = TableOperation.Replace(topic);
                 _topicTable.Execute(updateOperation);
+            }
+        }
+
+        public void UpdateUser(User user)
+        {
+            var retrieveOperation = TableOperation.Retrieve<User>("User", user.Email);
+            var retrievedUser = _userTable.Execute(retrieveOperation);
+            var user1 = (User)retrievedUser.Result;
+
+
+            if (user1 != null)
+            {
+                user1.FirstName = user.FirstName;
+                user1.LastName = user.LastName;
+                user1.Address = user.Address;
+                user1.PhoneNumber = user.PhoneNumber;
+                user1.City = user.City;
+                user1.Country = user.Country;
+                var updateOperation = TableOperation.Replace(user1);
+                _userTable.Execute(updateOperation);
             }
         }
     }

@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Security;
 
 namespace RedditService.Controllers
 {
@@ -24,6 +25,13 @@ namespace RedditService.Controllers
         {
             try
             {
+                var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+                if (authCookie != null)
+                {
+                    var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                    var userName = authTicket?.Name; // This will be the email in this case
+                    ViewBag.UserName = userName;
+                }
                 var topics = _repository.RetrieveAllTopics().ToList();
 
                 // Log the topics

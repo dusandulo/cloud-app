@@ -1,6 +1,13 @@
 ﻿@model IEnumerable<RedditService_Data.Topic>
 @{
     ViewBag.Title = "Index";
+    var authCookie = Request.Cookies[System.Web.Security.FormsAuthentication.FormsCookieName];
+    string userName = null;
+    if (authCookie != null)
+    {
+        var authTicket = System.Web.Security.FormsAuthentication.Decrypt(authCookie.Value);
+        userName = authTicket?.Name; // This will be the email in this case
+    }
 }
 <head>
     <meta charset="utf-8" />
@@ -9,9 +16,21 @@
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
 </head>
 <h2>Index</h2>
+
+@if (!string.IsNullOrEmpty(userName))
+{
+    <p>Welcome, @userName!</p>
+    <p>@Html.ActionLink("Logout", "Logout", "Login")</p>
+}
+else
+{
+    <p>@Html.ActionLink("Login", "ShowLogin", "Login")</p>
+}
+
 <p>@Html.ActionLink("Create New", "Create")</p>
 <p>@Html.ActionLink("Register User", "ShowRegister", "Register")</p>
 <p>@Html.ActionLink("View Users", "ShowListUsers", "Register")</p>
+<p>@Html.ActionLink("Edit User", "ShowEdit", "EditProfile")</p>
 <table>
     @foreach (var item in Model)
     {
