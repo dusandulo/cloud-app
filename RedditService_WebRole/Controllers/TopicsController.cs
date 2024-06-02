@@ -21,7 +21,7 @@ namespace RedditService.Controllers
             _repository = new RedditDataRepository();
         }
 
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder)
         {
             try
             {
@@ -32,7 +32,21 @@ namespace RedditService.Controllers
                     var userName = authTicket?.Name; // This will be the email in this case
                     ViewBag.UserName = userName;
                 }
-                var topics = _repository.RetrieveAllTopics().ToList();
+
+                var topics = _repository.RetrieveAllTopics();
+
+                switch (sortOrder)
+                {
+                    case "asc":
+                        topics = topics.OrderBy(t => t.Title).ToList();
+                        break;
+                    case "desc":
+                        topics = topics.OrderByDescending(t => t.Title).ToList();
+                        break;
+                    default:
+                        topics = topics.ToList();
+                        break;
+                }
 
                 // Log the topics
                 System.Diagnostics.Debug.WriteLine("Retrieved topics count: " + topics.Count);

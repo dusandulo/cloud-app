@@ -15,7 +15,7 @@
     <title>@ViewBag.Title - My ASP.NET Application</title>
     <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
 </head>
-<h2>Index</h2>
+<h2>Reddit</h2>
 
 @if (!string.IsNullOrEmpty(userName))
 {
@@ -26,11 +26,14 @@ else
 {
     <p>@Html.ActionLink("Login", "ShowLogin", "Login")</p>
 }
-
 <p>@Html.ActionLink("Create New", "Create")</p>
 <p>@Html.ActionLink("Register User", "ShowRegister", "Register")</p>
 <p>@Html.ActionLink("View Users", "ShowListUsers", "Register")</p>
 <p>@Html.ActionLink("Edit User", "ShowEdit", "EditProfile")</p>
+
+<button onclick="location.href='@Url.Action("Index", new { sortOrder = "asc" })'">Sort Asc</button>
+<button onclick="location.href='@Url.Action("Index", new { sortOrder = "desc" })'">Sort Desc</button>
+
 <table>
     @foreach (var item in Model)
     {
