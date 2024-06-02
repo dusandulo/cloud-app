@@ -21,7 +21,7 @@ namespace RedditService.Controllers
             _repository = new RedditDataRepository();
         }
 
-        public ActionResult Index(string sortOrder)
+        public ActionResult Index(string sortOrder, string searchString)
         {
             try
             {
@@ -34,6 +34,11 @@ namespace RedditService.Controllers
                 }
 
                 var topics = _repository.RetrieveAllTopics();
+
+                if (!String.IsNullOrEmpty(searchString))
+                {
+                    topics = topics.Where(t => t.Title.ToLower().Contains(searchString.ToLower())).ToList();
+                }
 
                 switch (sortOrder)
                 {

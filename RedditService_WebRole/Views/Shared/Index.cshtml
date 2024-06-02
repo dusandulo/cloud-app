@@ -31,8 +31,13 @@ else
 <p>@Html.ActionLink("View Users", "ShowListUsers", "Register")</p>
 <p>@Html.ActionLink("Edit User", "ShowEdit", "EditProfile")</p>
 
-<button onclick="location.href='@Url.Action("Index", new { sortOrder = "asc" })'">Sort Asc</button>
-<button onclick="location.href='@Url.Action("Index", new { sortOrder = "desc" })'">Sort Desc</button>
+<form method="get" action="@Url.Action("Index")">
+    <input type="text" name="searchString" value="@ViewBag.CurrentFilter" placeholder="Search by title..." />
+    <button type="submit">Search</button>
+</form>
+
+<button onclick="location.href='@Url.Action("Index", new { sortOrder = "asc", searchString = ViewBag.CurrentFilter })'">Sort Asc</button>
+<button onclick="location.href='@Url.Action("Index", new { sortOrder = "desc", searchString = ViewBag.CurrentFilter })'">Sort Desc</button>
 
 <table>
     @foreach (var item in Model)
