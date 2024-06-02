@@ -11,7 +11,7 @@
     @Html.AntiForgeryToken()
 
     <div class="form-group">
-        @Html.LabelFor(model => model.Content)
+        <label>Comment</label>
         @Html.TextAreaFor(model => model.Content, new { @class = "form-control", rows = "5" })
     </div>
 

@@ -46,6 +46,17 @@
         @Html.ValidationMessageFor(m => m.PhoneNumber)
     </div>
 
+    <div>
+        @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+        {
+            <img src="@Model.ProfilePictureUrl" alt="Image" />
+        }
+        else
+        {
+            <span>No Image</span>
+        }
+    </div>
+
     <div class="form-group">
         @Html.Label("Profile Picture")
         <input type="file" name="file" class="form-control" />
