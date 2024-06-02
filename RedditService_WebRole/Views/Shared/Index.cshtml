@@ -85,14 +85,18 @@ else
             <td>
                 @if (item.UserId == userName)
                 {
+                    using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
                     {
-                        using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
-                        {
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@item.RowKey" />
-                            <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
-                        }
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.RowKey" />
+                        <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
                     }
+                }
+            </td>
+            <td>
+                @if (!string.IsNullOrEmpty(userName))
+                {
+                    @Html.ActionLink("Comment", "Add", "Comment", new { id = item.RowKey }, null)
                 }
             </td>
         </tr>

@@ -56,12 +56,10 @@ namespace RedditService_Data
             _topicTable.Execute(insertOperation);
         }
 
-        public IQueryable<Comment> RetrieveAllComments()
+        public List<Comment> RetrieveAllComments()
         {
-            var results = from g in _commentTable.CreateQuery<Comment>()
-                          where g.PartitionKey == "Comment"
-                          select g;
-            return results;
+            var query = new TableQuery<Comment>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Comment"));
+            return _commentTable.ExecuteQuery(query).ToList();
         }
 
         public void AddComment(Comment newComment)
