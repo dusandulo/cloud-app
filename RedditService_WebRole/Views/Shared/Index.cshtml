@@ -26,10 +26,13 @@ else
 {
     <p>@Html.ActionLink("Login", "ShowLogin", "Login")</p>
 }
-<p>@Html.ActionLink("Create New", "Create")</p>
+@if (!string.IsNullOrEmpty(userName))
+{
+    <p>@Html.ActionLink("Create New", "Create")</p>
+    <p>@Html.ActionLink("Edit User", "ShowEdit", "EditProfile")</p>
+}
 <p>@Html.ActionLink("Register User", "ShowRegister", "Register")</p>
 <p>@Html.ActionLink("View Users", "ShowListUsers", "Register")</p>
-<p>@Html.ActionLink("Edit User", "ShowEdit", "EditProfile")</p>
 
 <form method="get" action="@Url.Action("Index")">
     <input type="text" name="searchString" value="@ViewBag.CurrentFilter" placeholder="Search by title..." />
@@ -56,30 +59,40 @@ else
             <td>
                 <strong>@Html.DisplayFor(modelItem => item.Title)</strong>
                 <p>@Html.DisplayFor(modelItem => item.Content)</p>
+                <p>@Html.DisplayFor(modelItem => item.UserId)</p>
                 <p><em>@Html.DisplayFor(modelItem => item.RowKey)</em></p>
             </td>
             <td class="vote-buttons">
                 <p>Upvotes: @item.Upvotes</p>
                 <p>Downvotes: @item.Downvotes</p>
-                @using (Html.BeginForm("Upvote", "Topics", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@item.RowKey" />
-                    <button type="submit">Upvote</button>
+                @{
+                    using (Html.BeginForm("Upvote", "Topics", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.RowKey" />
+                        <button type="submit">Upvote</button>
+                    }
                 }
-                @using (Html.BeginForm("Downvote", "Topics", FormMethod.Post))
-                {
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@item.RowKey" />
-                    <button type="submit">Downvote</button>
+                @{
+                    using (Html.BeginForm("Downvote", "Topics", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.RowKey" />
+                        <button type="submit">Downvote</button>
+                    }
                 }
             </td>
             <td>
-                @using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
+                @if (item.UserId == userName)
                 {
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@item.RowKey" />
-                    <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
+                    {
+                        using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.RowKey" />
+                            <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
+                        }
+                    }
                 }
             </td>
         </tr>

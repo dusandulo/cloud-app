@@ -25,33 +25,40 @@ namespace RedditService.Controllers
         {
             try
             {
-                var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
-                if (authCookie != null)
-                {
-                    var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-                    var userName = authTicket?.Name; // This will be the email in this case
-                    ViewBag.UserName = userName;
-                }
+                // Get user name from cookie
+                var userName = GetUserNameFromCookie();
+                ViewBag.UserName = userName;
 
                 var topics = _repository.RetrieveAllTopics();
 
+                // Separate topics into owned by user and others
+                var userTopics = topics.Where(t => t.UserId == userName).ToList();
+                var otherTopics = topics.Where(t => t.UserId != userName).ToList();
+
                 if (!String.IsNullOrEmpty(searchString))
                 {
-                    topics = topics.Where(t => t.Title.ToLower().Contains(searchString.ToLower())).ToList();
+                    userTopics = userTopics.Where(t => t.Title.ToLower().Contains(searchString.ToLower())).ToList();
+                    otherTopics = otherTopics.Where(t => t.Title.ToLower().Contains(searchString.ToLower())).ToList();
                 }
 
                 switch (sortOrder)
                 {
                     case "asc":
-                        topics = topics.OrderBy(t => t.Title).ToList();
+                        userTopics = userTopics.OrderBy(t => t.Title).ToList();
+                        otherTopics = otherTopics.OrderBy(t => t.Title).ToList();
                         break;
                     case "desc":
-                        topics = topics.OrderByDescending(t => t.Title).ToList();
+                        userTopics = userTopics.OrderByDescending(t => t.Title).ToList();
+                        otherTopics = otherTopics.OrderByDescending(t => t.Title).ToList();
                         break;
                     default:
-                        topics = topics.ToList();
+                        userTopics = userTopics.ToList();
+                        otherTopics = otherTopics.ToList();
                         break;
                 }
+
+                // Combine the lists
+                topics = userTopics.Concat(otherTopics).ToList();
 
                 // Log the topics
                 System.Diagnostics.Debug.WriteLine("Retrieved topics count: " + topics.Count);
@@ -74,6 +81,17 @@ namespace RedditService.Controllers
         public ActionResult Create()
         {
             return View("AddTopic");
+        }
+
+        private string GetUserNameFromCookie()
+        {
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            if (authCookie != null)
+            {
+                var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                return authTicket?.Name; // This will be the email in this case
+            }
+            return null;
         }
 
         [HttpPost]
@@ -100,8 +118,9 @@ namespace RedditService.Controllers
                         ImageUrl = blob.Uri.ToString(),
                         CreatedAt = DateTime.UtcNow,
                         Downvotes = 0,
-                        Upvotes = 0
-                    };
+                        Upvotes = 0,
+                        UserId = GetUserNameFromCookie()
+                };
 
                     _repository.AddTopic(entry);
 
