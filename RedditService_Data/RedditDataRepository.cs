@@ -149,5 +149,26 @@ namespace RedditService_Data
             var result = _userTable.Execute(retrieveOperation);
             return result.Result as User;
         }
+
+        public void DeleteComment(string commentId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Comment>("Comment", commentId);
+            var retrievedResult = _commentTable.Execute(retrieveOperation);
+            var comment = (Comment)retrievedResult.Result;
+
+            if (comment != null)
+            {
+                // Delete the comment
+                var deleteOperation = TableOperation.Delete(comment);
+                _commentTable.Execute(deleteOperation);
+            }
+        }
+
+        public Comment GetCommentById(string commentId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Comment>("Comment", commentId);
+            var retrievedResult = _commentTable.Execute(retrieveOperation);
+            return (Comment)retrievedResult.Result;
+        }
     }
 }

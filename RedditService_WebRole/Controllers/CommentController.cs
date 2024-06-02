@@ -71,6 +71,40 @@ namespace RedditService.Controllers
             }
         }
 
-        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult DeleteComment(string id)
+        {
+            string userName = GetUserNameFromCookie();
+            // Provera da li je korisnik ulogovan
+            if (!String.IsNullOrEmpty(userName))
+            {
+                // Pronalaženje komentara koji treba da se obriše
+                var commentToDelete = _repository.GetCommentById(id);
+
+                // Provera da li je komentar pronađen i da li pripada trenutnom korisniku
+                if (commentToDelete != null && commentToDelete.UserId == userName)
+                {
+                    // Brisanje komentara iz baze podataka
+                    _repository.DeleteComment(id);
+                }
+                else
+                {
+                    // Ako komentar nije pronađen ili ne pripada trenutnom korisniku, možete preusmeriti korisnika na odgovarajuću stranicu ili prikazati odgovarajuću poruku.
+                    // Na primer:
+                    TempData["ErrorMessage"] = "You don't have permission to delete this comment.";
+                }
+
+                // Preusmeravanje nazad na stranicu sa topic-om nakon brisanja komentara
+                return RedirectToAction("Index", "Topics");
+            }
+            else
+            {
+                // Ako korisnik nije ulogovan, preusmerimo ga na stranicu za prijavljivanje
+                return RedirectToAction("ShowLogin", "Login");
+            }
+        }
+
+
     }
 }
