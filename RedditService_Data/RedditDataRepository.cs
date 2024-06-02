@@ -16,6 +16,7 @@ namespace RedditService_Data
         private CloudTable _userTable;
         private CloudTable _topicTable;
         private CloudTable _commentTable;
+        private CloudTable _userVoteTable;
 
         public RedditDataRepository()
         {
@@ -30,6 +31,9 @@ namespace RedditService_Data
 
             _commentTable = tableClient.GetTableReference("CommentTable");
             _commentTable.CreateIfNotExists();
+
+            _userVoteTable = tableClient.GetTableReference("UserVotes");
+            _userVoteTable.CreateIfNotExists();
         }
 
         public List<User> RetrieveAllUsers()
@@ -121,22 +125,29 @@ namespace RedditService_Data
 
         public void UpdateUser(User user)
         {
-            var retrieveOperation = TableOperation.Retrieve<User>("User", user.Email);
-            var retrievedUser = _userTable.Execute(retrieveOperation);
-            var user1 = (User)retrievedUser.Result;
+            var updateOperation = TableOperation.Replace(user);
+            _userTable.Execute(updateOperation);
+        }
 
+        public bool HasUserVoted(string userId, string topicId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<UserVote>(userId, topicId);
+            var result = _userVoteTable.Execute(retrieveOperation);
+            return result.Result != null;
+        }
 
-            if (user1 != null)
-            {
-                user1.FirstName = user.FirstName;
-                user1.LastName = user.LastName;
-                user1.Address = user.Address;
-                user1.PhoneNumber = user.PhoneNumber;
-                user1.City = user.City;
-                user1.Country = user.Country;
-                var updateOperation = TableOperation.Replace(user1);
-                _userTable.Execute(updateOperation);
-            }
+        public void RecordUserVote(string userId, string topicId)
+        {
+            var userVote = new UserVote(userId, topicId);
+            var insertOperation = TableOperation.Insert(userVote);
+            _userVoteTable.Execute(insertOperation);
+        }
+
+        public User GetUserByEmail(string email)
+        {
+            var retrieveOperation = TableOperation.Retrieve<User>("User", email);
+            var result = _userTable.Execute(retrieveOperation);
+            return result.Result as User;
         }
     }
 }

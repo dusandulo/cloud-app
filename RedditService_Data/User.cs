@@ -1,4 +1,5 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,16 @@ namespace RedditService_Data
         public string Password { get; set; }
         public string ProfilePictureUrl { get; set; }
 
+
+        [IgnoreProperty]
+        public List<string> VotedTopics
+        {
+            get { return JsonConvert.DeserializeObject<List<string>>(VotedTopicsSerialized); }
+            set { VotedTopicsSerialized = JsonConvert.SerializeObject(value); }
+        }
+
+        public string VotedTopicsSerialized { get; set; }
+
         public User(string email)
         {
             PartitionKey = "User";
@@ -32,6 +43,7 @@ namespace RedditService_Data
             Email = string.Empty;
             Password = string.Empty;
             ProfilePictureUrl = string.Empty;
+            VotedTopics = new List<string>();
         }
 
         public User()
@@ -45,6 +57,7 @@ namespace RedditService_Data
             Email = string.Empty;
             Password = string.Empty;
             ProfilePictureUrl = string.Empty;
+            VotedTopics = new List<string>();
         }
     }
 }

@@ -208,32 +208,39 @@ namespace RedditService.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Upvote(string id)
         {
-            try
+            var user = GetUser();
+            if (user == null || _repository.HasUserVoted(user.RowKey, id))
             {
-                _repository.UpvoteTopic(id);
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
-                return View("Error", new HandleErrorInfo(ex, "Topics", "Upvote"));
-            }
+
+            _repository.UpvoteTopic(id);
+            _repository.RecordUserVote(user.RowKey, id);
+
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Downvote(string id)
         {
-            try
+            var user = GetUser();
+            if (user == null || _repository.HasUserVoted(user.RowKey, id))
             {
-                _repository.DownvoteTopic(id);
                 return RedirectToAction("Index");
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Exception: " + ex.Message);
-                return View("Error", new HandleErrorInfo(ex, "Topics", "Downvote"));
-            }
+
+            _repository.DownvoteTopic(id);
+            _repository.RecordUserVote(user.RowKey, id);
+
+            return RedirectToAction("Index");
+        }
+
+        private User GetUser()
+        {
+            var username = GetUserNameFromCookie();
+            if (username == null) return null;
+            return _repository.GetUserByEmail(username);
         }
 
 

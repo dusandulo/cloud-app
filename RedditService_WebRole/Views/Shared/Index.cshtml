@@ -6,20 +6,13 @@
     if (authCookie != null)
     {
         var authTicket = System.Web.Security.FormsAuthentication.Decrypt(authCookie.Value);
-        userName = authTicket?.Name; // This will be the email in this case
+        userName = authTicket?.Name;
     }
 }
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    <link href="~/Content/Site.css" rel="stylesheet" type="text/css" />
-</head>
+
 <h2>Reddit</h2>
 
-@{
-    var repository = new RedditService_Data.RedditDataRepository();
-}
+@{var _repository = new RedditService_Data.RedditDataRepository(); }
 
 @if (!string.IsNullOrEmpty(userName))
 {
@@ -70,21 +63,43 @@ else
                 <p>Upvotes: @item.Upvotes</p>
                 <p>Downvotes: @item.Downvotes</p>
                 @{
-                    using (Html.BeginForm("Upvote", "Topics", FormMethod.Post))
+                    bool hasVoted = false;
+                    if (userName != null)
                     {
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.RowKey" />
-                        <button type="submit">Upvote</button>
+                        var user = _repository.GetUserByEmail(userName);
+                        hasVoted = _repository.HasUserVoted(user.RowKey, item.RowKey);
                     }
                 }
-                @{
-                    using (Html.BeginForm("Downvote", "Topics", FormMethod.Post))
+
+                @{ if (!hasVoted)
                     {
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.RowKey" />
-                        <button type="submit">Downvote</button>
+                        <form action="@Url.Action("Upvote", "Topics")" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.RowKey" />
+                            <button type="submit" @(hasVoted ? "disabled" : "")>Upvote</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>Upvoted</p>
                     }
                 }
+
+
+                @{ if (!hasVoted)
+                    {
+                        <form action="@Url.Action("Downvote", "Topics")" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@item.RowKey" />
+                            <button type="submit" @(hasVoted ? "disabled" : "")>Downvote</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p>Downvoted</p>
+                    }
+                }
+
             </td>
             <td>
                 @if (item.UserId == userName)
@@ -105,7 +120,7 @@ else
             </td>
 
             <td>
-                @Html.Partial("_Comment", repository.RetrieveAllComments().Where(c => c.TopicId == item.RowKey))
+                @Html.Partial("_Comment", _repository.RetrieveAllComments().Where(c => c.TopicId == item.RowKey))
             </td>
         </tr>
     }

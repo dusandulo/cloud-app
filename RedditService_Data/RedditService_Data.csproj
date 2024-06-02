@@ -71,6 +71,7 @@
     <Compile Include="RedditDataRepository.cs" />
     <Compile Include="Topic.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="UserVote.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
