@@ -39,7 +39,7 @@ namespace RedditService_WebRole.Controllers
                 if (user != null)
                 {
                     FormsAuthentication.SetAuthCookie(user.Email, false);
-                    return RedirectToAction("Index", "Topics");
+                    return RedirectToAction("Index", "Topics", user);
                 }
                 else
                 {

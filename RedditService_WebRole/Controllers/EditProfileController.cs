@@ -17,31 +17,25 @@ namespace RedditService_WebRole.Controllers
         {
             _repository = new RedditDataRepository();
         }
-        
+
         public ActionResult ShowEdit()
         {
-            return View("Edit");
+            var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
+            if (authCookie != null)
+            {
+                var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                var userEmail = authTicket?.Name;
+
+                var user = _repository.RetrieveAllUsers().FirstOrDefault(u => u.Email == userEmail);
+                if (user != null)
+                {
+                    return View("Edit", user);
+                }
+            }
+
+            return RedirectToAction("ShowLogin", "Login");
         }
 
-        //public ActionResult Edit()
-        //{
-        //    var authCookie = Request.Cookies[FormsAuthentication.FormsCookieName];
-        //    if (authCookie != null)
-        //    {
-        //        var authTicket = FormsAuthentication.Decrypt(authCookie.Value);
-        //        var userEmail = authTicket?.Name;
-
-        //        var user = _repository.RetrieveAllUsers().FirstOrDefault(u => u.Email == userEmail);
-        //        if (user != null)
-        //        {
-        //            return View(user);
-        //        }
-        //    }
-
-        //    return RedirectToAction("ShowLogin", "Login");
-        //}
-
-       
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(User user, HttpPostedFileBase file)
