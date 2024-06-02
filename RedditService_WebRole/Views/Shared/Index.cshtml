@@ -17,6 +17,10 @@
 </head>
 <h2>Reddit</h2>
 
+@{
+    var repository = new RedditService_Data.RedditDataRepository();
+}
+
 @if (!string.IsNullOrEmpty(userName))
 {
     <p>Welcome, @userName!</p>
@@ -98,6 +102,10 @@ else
                 {
                     @Html.ActionLink("Comment", "Add", "Comment", new { id = item.RowKey }, null)
                 }
+            </td>
+
+            <td>
+                @Html.Partial("_Comment", repository.RetrieveAllComments().Where(c => c.TopicId == item.RowKey))
             </td>
         </tr>
     }

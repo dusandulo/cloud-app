@@ -95,12 +95,13 @@ namespace RedditService.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddTopic(string RowKey, string Title, string Content, HttpPostedFileBase file)
+        public ActionResult AddTopic(string Title, string Content, HttpPostedFileBase file)
         {
             if (file != null && file.ContentLength > 0)
             {
                 try
                 {
+                    string RowKey = Guid.NewGuid().ToString();
                     string uniqueBlobName = $"image_{RowKey}";
                     var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("DataConnectionString"));
                     var blobClient = storageAccount.CreateCloudBlobClient();

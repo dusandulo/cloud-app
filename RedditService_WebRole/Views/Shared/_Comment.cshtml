@@ -1,0 +1,16 @@
+﻿@model IEnumerable<RedditService_Data.Comment>
+
+@if (Model.Any())
+{
+    <h4>Comments:</h4>
+    <ul>
+        @foreach (var comment in Model)
+        {
+            <li>@comment.Content</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No comments yet.</p>
+}
