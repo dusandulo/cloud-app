@@ -52,12 +52,17 @@
             </div>
             @Html.LabelFor(model => model.Password, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.PasswordFor(model => model.Password, new { @class = "form-control" })
+                @Html.PasswordFor(model => model.Password, new { htmlAttributes = new { @class = "form-control" } })
                 @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
             </div>
-            <input type="file" id="studentPicture" name="file" />
+            <div class="col-md-2">
+                <label for="studentPicture" class="control-label">Profile Picture</label>
+            </div>
+            <div class="col-md-10">
+                <input type="file" id="studentPicture" name="file" accept="image/*" class="form-control" />
+                <img id="preview" src="#" alt="Your image" style="max-width: 300px; display: none;" />
+            </div>
         </div>
-        <!-- Dodajte ostala polja za unos korisničkih podataka -->
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="submit" value="Register" class="btn btn-primary" />
@@ -72,4 +77,22 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#preview').attr('src', e.target.result);
+                    $('#preview').show();
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#studentPicture").change(function () {
+            readURL(this);
+        });
+    </script>
 }

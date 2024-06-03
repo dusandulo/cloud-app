@@ -30,21 +30,6 @@
             <button class="btn btn-light" onclick="location.href='@Url.Action("Index", new { sortOrder = "asc", searchString = ViewBag.CurrentFilter })'">Sort ↑</button>
             <button class="btn btn-light" onclick="location.href='@Url.Action("Index", new { sortOrder = "desc", searchString = ViewBag.CurrentFilter })'">Sort ↓</button>
         </div>
-
-        <div>
-            @if (!string.IsNullOrEmpty(userName))
-            {
-                @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
-                @Html.ActionLink("View Users", "ShowListUsers", "Register", null, new { @class = "btn btn-dark" })
-                @Html.ActionLink("Register User", "ShowRegister", "Register", null, new { @class = "btn btn-warning" })
-                @Html.ActionLink("Edit Profile", "ShowEdit", "EditProfile", null, new { @class = "btn btn-info" })
-                @Html.ActionLink("Logout", "Logout", "Login", null, new { @class = "btn btn-secondary" })
-            }
-            else
-            {
-                @Html.ActionLink("Login", "ShowLogin", "Login", null, new { @class = "btn btn-primary" })
-            }
-        </div>
     </div>
 
     @foreach (var item in Model)
@@ -84,26 +69,30 @@
                             <p class="downvotes"><i class="fas fa-thumbs-down" style="color: red;"></i> Downvotes: @item.Downvotes</p>
                         </div>
 
-                            @if (!hasVoted)
-                            {
-                                <div class="vote-buttons">
-                                    <form action="@Url.Action("Upvote", "Topics")" method="post" class="d-inline-block">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.RowKey" />
-                                        <button type="submit" class="btn btn-outline-primary"><i class="far fa-thumbs-up"></i> Like</button>
-                                    </form>
-                                    <form action="@Url.Action("Downvote", "Topics")" method="post" class="d-inline-block">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.RowKey" />
-                                        <button type="submit" class="btn btn-outline-danger"><i class="far fa-thumbs-down"></i> Dislike</button>
-                                    </form>
-                                </div>
-                            }
-                            else
-                            {
-                                <p class="text-success mb-0">Voted</p>
-                            }
-                        </div>
+                        @if (!hasVoted && !string.IsNullOrEmpty(userName))
+                        {
+                            <div class="vote-buttons">
+                                <form action="@Url.Action("Upvote", "Topics")" method="post" class="d-inline-block">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.RowKey" />
+                                    <button type="submit" class="btn btn-outline-primary"><i class="far fa-thumbs-up"></i> Like</button>
+                                </form>
+                                <form action="@Url.Action("Downvote", "Topics")" method="post" class="d-inline-block">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.RowKey" />
+                                    <button type="submit" class="btn btn-outline-danger"><i class="far fa-thumbs-down"></i> Dislike</button>
+                                </form>
+                            </div>
+                        }
+                        else if(string.IsNullOrEmpty(userName))
+                        {
+                            <p class="text-danger mb-0">Log in to vote</p>
+                        }
+                        else
+                        {
+                            <p class="text-success mb-0">Voted</p>
+                        }
+                    </div>
 
                         <div class="action-buttons mt-3 d-flex justify-content-end">
                             @if (item.UserId == userName)
