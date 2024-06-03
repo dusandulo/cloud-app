@@ -38,6 +38,14 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HealthMonitoringService\HealthMonitoringService.csproj">
+      <Name>HealthMonitoringService</Name>
+      <Project>{9bf1d85c-de97-4e10-9dc7-065677220ea9}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>HealthMonitoringService</RoleName>
+      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+    </ProjectReference>
     <ProjectReference Include="..\RedditService_WebRole\RedditService_WebRole.csproj">
       <Name>RedditService_WebRole</Name>
       <Project>{e430d9f5-e0cc-49c4-9b5a-2dff4e47e8e1}</Project>
@@ -48,9 +56,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="HealthMonitoringServiceContent\" />
     <Folder Include="RedditService_WebRoleContent\" />
   </ItemGroup>
   <ItemGroup>
+    <DiagnosticsConfiguration Include="HealthMonitoringServiceContent\diagnostics.wadcfgx" />
     <DiagnosticsConfiguration Include="RedditService_WebRoleContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <!-- Import the target files for this project template -->

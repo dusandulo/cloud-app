@@ -42,10 +42,53 @@ namespace RedditService_Data
             return _userTable.ExecuteQuery(query).ToList();
         }
 
+        public async Task<List<User>> RetrieveAllUsersAsync()
+        {
+            var query = new TableQuery<User>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "User"));
+            TableQuerySegment<User> resultSegment = null;
+            List<User> users = new List<User>();
+
+            while (resultSegment == null || resultSegment.ContinuationToken != null)
+            {
+                resultSegment = await _userTable.ExecuteQuerySegmentedAsync(query, resultSegment?.ContinuationToken);
+                users.AddRange(resultSegment.Results);
+            }
+
+            return users;
+        }
+
         public void AddUser(User newUser)
         {
             TableOperation insertOperation = TableOperation.Insert(newUser);
             _userTable.Execute(insertOperation);
+        }
+
+        public void DeleteUser(string userId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<Comment>("UserTable", userId);
+            var retrievedResult = _userTable.Execute(retrieveOperation);
+            var user = (User)retrievedResult.Result;
+
+            if (user != null)
+            {
+                // Delete the user
+                var deleteOperation = TableOperation.Delete(user);
+                _userTable.Execute(deleteOperation);
+            }
+        }
+
+        public async Task DeleteUserAsync(string userId)
+        {
+            var retrieveOperation = TableOperation.Retrieve<User>("User", userId);
+            var retrievedResult = await _userTable.ExecuteAsync(retrieveOperation);
+            var user = (User)retrievedResult.Result;
+
+            if (user != null)
+            {
+                // Delete the user
+                var deleteOperation = TableOperation.Delete(user);
+                await _userTable.ExecuteAsync(deleteOperation);
+            }
         }
 
         public List<Topic> RetrieveAllTopics()

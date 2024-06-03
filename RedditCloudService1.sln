@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedditService_WebRole", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedditService_Data", "RedditService_Data\RedditService_Data.csproj", "{A4B8F16A-578F-445E-9E1A-187E1F8E0D25}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdminConsole", "AdminConsole\AdminConsole.csproj", "{BF28CD15-C8E0-4ACA-A7E5-076FDAE086D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoringService", "HealthMonitoringService\HealthMonitoringService.csproj", "{9BF1D85C-DE97-4E10-9DC7-065677220EA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{A4B8F16A-578F-445E-9E1A-187E1F8E0D25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4B8F16A-578F-445E-9E1A-187E1F8E0D25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4B8F16A-578F-445E-9E1A-187E1F8E0D25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF28CD15-C8E0-4ACA-A7E5-076FDAE086D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF28CD15-C8E0-4ACA-A7E5-076FDAE086D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF28CD15-C8E0-4ACA-A7E5-076FDAE086D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF28CD15-C8E0-4ACA-A7E5-076FDAE086D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BF1D85C-DE97-4E10-9DC7-065677220EA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BF1D85C-DE97-4E10-9DC7-065677220EA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BF1D85C-DE97-4E10-9DC7-065677220EA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BF1D85C-DE97-4E10-9DC7-065677220EA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
