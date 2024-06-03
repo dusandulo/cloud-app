@@ -64,13 +64,12 @@ namespace HealthMonitoringService
         {
             ServiceConnector<IHealthMonitoringService> serviceConnector = new ServiceConnector<IHealthMonitoringService>();
 
-            /// Create new HealthCheckInfo for portfolio and notification service
-            Guid portfolioGuid = Guid.NewGuid();
+            Guid redditGuid = Guid.NewGuid();
             Guid notificationGuid = Guid.NewGuid();
 
-            HealthCheckInfo portfolioHealthCheck = new HealthCheckInfo(portfolioGuid)
+            HealthCheckInfo redditHealthCheck = new HealthCheckInfo(redditGuid)
             {
-                Id = portfolioGuid
+                Id = redditGuid
             };
 
             HealthCheckInfo notificationHealthCheck = new HealthCheckInfo(notificationGuid)
@@ -78,23 +77,23 @@ namespace HealthMonitoringService
                 Id = notificationGuid
             };
 
-            /// Test Portfolio service
+            /// Test Reddit service
             try
             {
-                // Connect to the portfolio service
+                // Connect to the reddit service
                 serviceConnector.Connect("net.tcp://localhost:10100/health-monitoring");
                 IHealthMonitoringService healthMonitoringService = serviceConnector.GetProxy();
                 healthMonitoringService.HealthCheck();
 
-                // Log and set message for portfolio service health check
-                Trace.WriteLine($"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK");
-                portfolioHealthCheck.Message = $"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK";
+                // Log and set message for reddit service health check
+                Trace.WriteLine($"[INFO] {DateTime.UtcNow}_REDDIT_OK");
+                redditHealthCheck.Message = $"[INFO] {DateTime.UtcNow}_REDDIT_OK";
             }
             catch (Exception ex)
             {
-                // Log and set message for portfolio service health check failure
-                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK. Exception: {ex.Message}");
-                portfolioHealthCheck.Message = $"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK";
+                // Log and set message for reddit service health check failure
+                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_REDDIT_NOT_OK. Exception: {ex.Message}");
+                redditHealthCheck.Message = $"[WARNING] {DateTime.UtcNow}_REDDIT_NOT_OK";
             }
             /// Test Notification service
             try
@@ -114,16 +113,15 @@ namespace HealthMonitoringService
 
             /// Add the messages to the table
 
-            await _repository.AddHealthCheckInfoAsync(portfolioHealthCheck);
+            await _repository.AddHealthCheckInfoAsync(redditHealthCheck);
             await _repository.AddHealthCheckInfoAsync(notificationHealthCheck);
-            if (portfolioHealthCheck.Message.Contains("WARNING"))
+            if (redditHealthCheck.Message.Contains("WARNING"))
             {
-                //await MailHelper.SendServiceDown(AdminConsoleServiceProvider.adminEmails, "Portfolio service");
+                //await MailHelper.SendServiceDown(AdminConsoleServiceProvider.adminEmails, "Reddit service");
             }
             if (notificationHealthCheck.Message.Contains("WARNING"))
             {
                 //await MailHelper.SendServiceDown(AdminConsoleServiceProvider.adminEmails, "Notification service");
-
             }
         }
 

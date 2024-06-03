@@ -25,23 +25,23 @@ namespace HealthStatusService.Controllers
             var last24Hours = DateTime.UtcNow.AddHours(-24);
             statuses = statuses.Where(s => ExtractTimestamp(s.Message) >= last24Hours);
 
-            var portfolioMessages = statuses.Where(s => s.Message.Contains("PORTFOLIO"));
+            var redditMessages = statuses.Where(s => s.Message.Contains("REDDIT"));
             var notificationMessages = statuses.Where(s => s.Message.Contains("NOTIFICATION"));
 
-            int portfolioOkCount = portfolioMessages.Count(s => s.Message.Contains("PORTFOLIO_OK"));
-            int portfolioNotOkCount = portfolioMessages.Count(s => s.Message.Contains("PORTFOLIO_NOT_OK"));
+            int redditOkCount = redditMessages.Count(s => s.Message.Contains("REDDIT_OK"));
+            int redditNotOkCount = redditMessages.Count(s => s.Message.Contains("REDDIT_NOT_OK"));
 
             int notificationOkCount = notificationMessages.Count(s => s.Message.Contains("NOTIFICATION_OK"));
             int notificationNotOkCount = notificationMessages.Count(s => s.Message.Contains("NOTIFICATION_NOT_OK"));
 
-            double portfolioUptimePercentage = CalculateUptimePercentage(portfolioOkCount, portfolioNotOkCount);
+            double redditUptimePercentage = CalculateUptimePercentage(redditOkCount, redditNotOkCount);
             double notificationUptimePercentage = CalculateUptimePercentage(notificationOkCount, notificationNotOkCount);
 
-            ViewBag.PortfolioUptime = portfolioUptimePercentage;
+            ViewBag.RedditUptime = redditUptimePercentage;
             ViewBag.NotificationUptime = notificationUptimePercentage;
 
-            ViewBag.PortfolioOkCount = portfolioOkCount;
-            ViewBag.PortfolioNotOkCount = portfolioNotOkCount;
+            ViewBag.RedditOkCount = redditOkCount;
+            ViewBag.RedditNotOkCount = redditNotOkCount;
 
             ViewBag.NotificationOkCount = notificationOkCount;
             ViewBag.NotificationNotOkCount = notificationNotOkCount;
@@ -51,7 +51,7 @@ namespace HealthStatusService.Controllers
 
         private DateTime ExtractTimestamp(string message)
         {
-            var timestampString = message.Split(' ')[1].Replace("_PORTFOLIO_OK", "").Replace("_PORTFOLIO_NOT_OK", "").Replace("_NOTIFICATION_OK", "").Replace("_NOTIFICATION_NOT_OK", "");
+            var timestampString = message.Split(' ')[1].Replace("_REDDIT_OK", "").Replace("_REDDIT_NOT_OK", "").Replace("_NOTIFICATION_OK", "").Replace("_NOTIFICATION_NOT_OK", "");
             return DateTime.Parse(timestampString);
         }
 

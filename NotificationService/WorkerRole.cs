@@ -96,7 +96,7 @@ namespace NotificationService
                     await queue.DeleteMessageAsync(message);
                 }
 
-                await Task.Delay(30000); // Check every 30 seconds
+                await Task.Delay(15000); // Check every 15 seconds
             }
         }
 
@@ -118,11 +118,11 @@ namespace NotificationService
 
         private void SendEmail(string email, Comment comment)
         {
-            var smtpClient = new SmtpClient("smtp.gmail.com")
+            var smtpClient = new SmtpClient("sandbox.smtp.mailtrap.io")
             {
-                Port = 465,
-                Credentials = new NetworkCredential("ducarhd3@gmail.com", "cwnkvgzxtmibntrd"),
-                EnableSsl = true,
+                Port = 2525, // Mailtrap's recommended port
+                Credentials = new NetworkCredential("c94feac755e586", "46f367e560adf7"),
+                EnableSsl = false, // Typically SSL is not required for Mailtrap on port 2525
             };
 
             string body = $"New comment on topic: {comment.TopicId}\n\n" +
@@ -130,8 +130,15 @@ namespace NotificationService
                           $"Posted by: {comment.UserId}\n" +
                           $"At: {comment.CreatedAt}";
 
-            smtpClient.Send("ducarhd3@gmail.com", email, "New Comment Notification", body);
-            Trace.TraceInformation($"{email} got message: {body}");
+            try
+            {
+                smtpClient.Send("from@example.com", email, "New Comment Notification", body); // Set a placeholder sender email
+                Trace.TraceInformation($"{email} got message: {body}");
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Failed to send email. Error: " + ex.Message);
+            }
         }
     }
 }
