@@ -56,10 +56,12 @@
 
                         @{
                             bool hasVoted = false;
+                            bool isSubscribed = false;
                             if (userName != null)
                             {
                                 var user = _repository.GetUserByEmail(userName);
                                 hasVoted = _repository.HasUserVoted(user.RowKey, item.RowKey);
+                                isSubscribed = _repository.IsUserSubscribed(user.Email, item.RowKey);
                             }
                         }
 
@@ -94,22 +96,38 @@
                         }
                     </div>
 
-                        <div class="action-buttons mt-3 d-flex justify-content-end">
-                            @if (item.UserId == userName)
+                    <div class="action-buttons mt-3 d-flex justify-content-end">
+                        @if (item.UserId == userName)
+                        {
+                            using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
                             {
-                                using (Html.BeginForm("Delete", "Topics", FormMethod.Post))
-                                {
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.RowKey" />
-                                    <button type="submit" class="btn btn-danger ml-2" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
-                                }
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.RowKey" />
+                                <button type="submit" class="btn btn-danger ml-2" onclick="return confirm('Are you sure you want to delete this topic?');">Delete</button>
                             }
+                        }
 
-                            @if (!string.IsNullOrEmpty(userName))
+
+                        @if (!string.IsNullOrEmpty(userName))
+                        {
+                            <a href="@Url.Action("Add", "Comment", new { id = item.RowKey })" class="btn btn-secondary ml-2">Comment</a>
+                            if (!isSubscribed)
                             {
-                                <a href="@Url.Action("Add", "Comment", new { id = item.RowKey })" class="btn btn-secondary ml-2">Comment</a>
-                            }
-                        </div>
+                                 <form action="@Url.Action("Subscribe", "Topics")" method="post" class="d-inline-block ml-2">
+                                       @Html.AntiForgeryToken()
+                                       <input type="hidden" name="topicId" value="@item.RowKey" />
+                                         <button type="submit" class="btn btn-outline-info">Subscribe</button>
+                                 </form> }
+                            else
+                                 {
+                                 <button class="btn btn-outline-secondary ml-2" disabled>Subscribed</button>
+                                 }
+                        }
+
+
+
+
+                    </div>
 
                         <div class="mt-4">
                             @Html.Partial("_Comment", _repository.RetrieveAllComments().Where(c => c.TopicId == item.RowKey))

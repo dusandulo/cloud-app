@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.9.34728.123
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32901.82
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "RedditCloudService1", "RedditCloudService1\RedditCloudService1.ccproj", "{57362EF7-AFAA-4AF6-A0E6-B75229BDBDBC}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthMonitoringService", "HealthMonitoringService\HealthMonitoringService.csproj", "{9BF1D85C-DE97-4E10-9DC7-065677220EA9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HealthStatusService", "HealthStatusService\HealthStatusService.csproj", "{3CB4B7F1-D62B-42AF-886E-E645EB081ADA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{500D6EA8-B7AC-41C4-8CBE-0CFE9C5A167A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{3CB4B7F1-D62B-42AF-886E-E645EB081ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CB4B7F1-D62B-42AF-886E-E645EB081ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CB4B7F1-D62B-42AF-886E-E645EB081ADA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{500D6EA8-B7AC-41C4-8CBE-0CFE9C5A167A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{500D6EA8-B7AC-41C4-8CBE-0CFE9C5A167A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{500D6EA8-B7AC-41C4-8CBE-0CFE9C5A167A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{500D6EA8-B7AC-41C4-8CBE-0CFE9C5A167A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

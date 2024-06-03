@@ -243,7 +243,36 @@ namespace RedditService.Controllers
             return _repository.GetUserByEmail(username);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Subscribe(string topicId)
+        {
+            var authCookie = Request.Cookies[System.Web.Security.FormsAuthentication.FormsCookieName];
+            if (authCookie != null)
+            {
+                var authTicket = System.Web.Security.FormsAuthentication.Decrypt(authCookie.Value);
+                var userName = authTicket?.Name;
 
+                if (!string.IsNullOrEmpty(userName))
+                {
+                    var user = _repository.GetUserByEmail(userName);
+                    var subscription = new Subscription
+                    {
+                        PartitionKey = "Subscription",
+                        RowKey = Guid.NewGuid().ToString(),
+                        Email = user.Email,
+                        TopicId = topicId
+                    };
+
+
+                    _repository.AddSubscription(subscription);
+
+                    TempData["Message"] = "Subscribed successfully!";
+                }
+            }
+
+            return RedirectToAction("Index");
+        }
 
     }
 }

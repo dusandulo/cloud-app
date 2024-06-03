@@ -19,6 +19,7 @@ namespace RedditService_Data
         private CloudTable _commentTable;
         private CloudTable _userVoteTable;
         private CloudTable _healthCheckInfoTable;
+        private CloudTable _subscriptionTable;
 
         public RedditDataRepository()
         {
@@ -39,6 +40,9 @@ namespace RedditService_Data
 
             _healthCheckInfoTable = tableClient.GetTableReference("HealthCheckInfo");
             _healthCheckInfoTable.CreateIfNotExists();
+
+            _subscriptionTable = tableClient.GetTableReference("Subscription");
+            _subscriptionTable.CreateIfNotExists();
         }
 
         public List<User> RetrieveAllUsers()
@@ -60,6 +64,50 @@ namespace RedditService_Data
             }
 
             return users;
+        }
+
+        public List<Subscription> RetrieveAllSubscriptions()
+        {
+            var query = new TableQuery<Subscription>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Subscription"));
+            return _subscriptionTable.ExecuteQuery(query).ToList();
+        }
+
+        public async Task<List<Subscription>> RetrieveAllSubscriptionsAsync()
+        {
+            var query = new TableQuery<Subscription>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Subscription"));
+            TableQuerySegment<Subscription> resultSegment = null;
+            List<Subscription> subscriptions = new List<Subscription>();
+
+            while (resultSegment == null || resultSegment.ContinuationToken != null)
+            {
+                resultSegment = await _subscriptionTable.ExecuteQuerySegmentedAsync(query, resultSegment?.ContinuationToken);
+                subscriptions.AddRange(resultSegment.Results);
+            }
+
+            return subscriptions;
+        }
+
+        public void AddSubscription(Subscription newSub)
+        {
+            TableOperation insertOperation = TableOperation.Insert(newSub);
+            _subscriptionTable.Execute(insertOperation);
+        }
+
+        public bool IsUserSubscribed(string email, string topicId)
+        {
+            var query = new TableQuery<Subscription>().Where(
+                TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Subscription"),
+                    TableOperators.And,
+                    TableQuery.CombineFilters(
+                        TableQuery.GenerateFilterCondition("Email", QueryComparisons.Equal, email),
+                        TableOperators.And,
+                        TableQuery.GenerateFilterCondition("TopicId", QueryComparisons.Equal, topicId)
+                    )
+                )
+            );
+
+            return _subscriptionTable.ExecuteQuery(query).Any();
         }
 
         public void AddUser(User newUser)
@@ -247,5 +295,20 @@ namespace RedditService_Data
 
             return healthCheckInfos;
         }
+
+
+        public IEnumerable<Subscription> GetSubscribersByTopicId(string topicId)
+        {
+            var query = new TableQuery<Subscription>().Where(
+                TableQuery.CombineFilters(
+                    TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Subscription"),
+                    TableOperators.And,
+                    TableQuery.GenerateFilterCondition("TopicId", QueryComparisons.Equal, topicId)
+                )
+            );
+
+            return _subscriptionTable.ExecuteQuery(query);
+        }
+
     }
 }

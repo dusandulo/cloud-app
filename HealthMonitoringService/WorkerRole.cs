@@ -81,16 +81,19 @@ namespace HealthMonitoringService
             /// Test Portfolio service
             try
             {
+                // Connect to the portfolio service
                 serviceConnector.Connect("net.tcp://localhost:10100/health-monitoring");
                 IHealthMonitoringService healthMonitoringService = serviceConnector.GetProxy();
                 healthMonitoringService.HealthCheck();
 
+                // Log and set message for portfolio service health check
                 Trace.WriteLine($"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK");
                 portfolioHealthCheck.Message = $"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK";
             }
-            catch
+            catch (Exception ex)
             {
-                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK");
+                // Log and set message for portfolio service health check failure
+                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK. Exception: {ex.Message}");
                 portfolioHealthCheck.Message = $"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK";
             }
             /// Test Notification service

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Web.Mvc;
 using System.Web.Security;
+using Microsoft.WindowsAzure.Storage.Queue;
 using RedditService_Data;
 
 namespace RedditService.Controllers
@@ -47,10 +48,10 @@ namespace RedditService.Controllers
         public ActionResult Add(string topicId, string content)
         {
             string userName = GetUserNameFromCookie();
-            // Provera da li je korisnik ulogovan
+            CloudQueue _notificationsQueue = QueueHelper.GetQueueReference("notificationsqueue");
+
             if (!String.IsNullOrEmpty(userName))
             {
-                // Dodavanje komentara
                 var comment = new Comment(Guid.NewGuid().ToString())
                 {
                     Content = content,
@@ -61,15 +62,18 @@ namespace RedditService.Controllers
 
                 _repository.AddComment(comment);
 
-                // Preusmeravanje nazad na stranicu sa topic-om nakon dodavanja komentara
+                // Add comment ID to the cloud queue
+                CloudQueueMessage message = new CloudQueueMessage(comment.RowKey);
+                _notificationsQueue.AddMessage(message);
+
                 return RedirectToAction("Index", "Topics");
             }
             else
             {
-                // Ako korisnik nije ulogovan, preusmerimo ga na stranicu za prijavljivanje
                 return RedirectToAction("ShowLogin", "Login");
             }
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
