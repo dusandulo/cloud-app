@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure;
 using System.Runtime.Remoting.Contexts;
+using Common.Models;
 
 namespace RedditService_Data
 {
@@ -17,6 +18,7 @@ namespace RedditService_Data
         private CloudTable _topicTable;
         private CloudTable _commentTable;
         private CloudTable _userVoteTable;
+        private CloudTable _healthCheckInfoTable;
 
         public RedditDataRepository()
         {
@@ -34,6 +36,9 @@ namespace RedditService_Data
 
             _userVoteTable = tableClient.GetTableReference("UserVotes");
             _userVoteTable.CreateIfNotExists();
+
+            _healthCheckInfoTable = tableClient.GetTableReference("HealthCheckInfo");
+            _healthCheckInfoTable.CreateIfNotExists();
         }
 
         public List<User> RetrieveAllUsers()
@@ -212,6 +217,35 @@ namespace RedditService_Data
             var retrieveOperation = TableOperation.Retrieve<Comment>("Comment", commentId);
             var retrievedResult = _commentTable.Execute(retrieveOperation);
             return (Comment)retrievedResult.Result;
+        }
+
+        // HealthCheckInfo
+
+        public void AddHealthCheckInfo(HealthCheckInfo newHealthCheckInfo)
+        {
+            TableOperation insertOperation = TableOperation.Insert(newHealthCheckInfo);
+            _healthCheckInfoTable.Execute(insertOperation);
+        }
+
+        public async Task AddHealthCheckInfoAsync(HealthCheckInfo newHealthCheckInfo)
+        {
+            TableOperation insertOperation = TableOperation.Insert(newHealthCheckInfo);
+            await _healthCheckInfoTable.ExecuteAsync(insertOperation);
+        }
+
+        public async Task<IEnumerable<HealthCheckInfo>> RetrieveAllHealthCheckInfoAsync()
+        {
+            var query = new TableQuery<HealthCheckInfo>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "HealthCheckInfo"));
+            TableQuerySegment<HealthCheckInfo> resultSegment = null;
+            List<HealthCheckInfo> healthCheckInfos = new List<HealthCheckInfo>();
+
+            while (resultSegment == null || resultSegment.ContinuationToken != null)
+            {
+                resultSegment = await _healthCheckInfoTable.ExecuteQuerySegmentedAsync(query, resultSegment?.ContinuationToken);
+                healthCheckInfos.AddRange(resultSegment.Results);
+            }
+
+            return healthCheckInfos;
         }
     }
 }

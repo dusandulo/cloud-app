@@ -1,6 +1,10 @@
+using Common.Models;
+using Common;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using RedditService_Data;
+using StudentServiceClient.UniversalConnector;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +17,8 @@ namespace HealthMonitoringService
 {
     public class WorkerRole : RoleEntryPoint
     {
+        private RedditDataRepository _repository;
+
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent runCompleteEvent = new ManualResetEvent(false);
         private static AdminConsoleService adminConsoleService;
@@ -33,6 +39,8 @@ namespace HealthMonitoringService
 
         public override bool OnStart()
         {
+            _repository = new RedditDataRepository();
+
             // Use TLS 1.2 for Service Bus connections
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
@@ -50,6 +58,72 @@ namespace HealthMonitoringService
 
             return result;
         }
+
+
+        private async Task TestServicesAsync()
+        {
+            ServiceConnector<IHealthMonitoringService> serviceConnector = new ServiceConnector<IHealthMonitoringService>();
+
+            /// Create new HealthCheckInfo for portfolio and notification service
+            Guid portfolioGuid = Guid.NewGuid();
+            Guid notificationGuid = Guid.NewGuid();
+
+            HealthCheckInfo portfolioHealthCheck = new HealthCheckInfo(portfolioGuid)
+            {
+                Id = portfolioGuid
+            };
+
+            HealthCheckInfo notificationHealthCheck = new HealthCheckInfo(notificationGuid)
+            {
+                Id = notificationGuid
+            };
+
+            /// Test Portfolio service
+            try
+            {
+                serviceConnector.Connect("net.tcp://localhost:10100/health-monitoring");
+                IHealthMonitoringService healthMonitoringService = serviceConnector.GetProxy();
+                healthMonitoringService.HealthCheck();
+
+                Trace.WriteLine($"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK");
+                portfolioHealthCheck.Message = $"[INFO] {DateTime.UtcNow}_PORTFOLIO_OK";
+            }
+            catch
+            {
+                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK");
+                portfolioHealthCheck.Message = $"[WARNING] {DateTime.UtcNow}_PORTFOLIO_NOT_OK";
+            }
+            /// Test Notification service
+            try
+            {
+                serviceConnector.Connect("net.tcp://localhost:10101/health-monitoring");
+                IHealthMonitoringService healthMonitoringService = serviceConnector.GetProxy();
+                healthMonitoringService.HealthCheck();
+
+                Trace.WriteLine($"[INFO] {DateTime.UtcNow}_NOTIFICATION_OK");
+                notificationHealthCheck.Message = $"[INFO] {DateTime.UtcNow}_NOTIFICATION_OK";
+            }
+            catch
+            {
+                Trace.WriteLine($"[WARNING] {DateTime.UtcNow}_NOTIFICATION_NOT_OK");
+                notificationHealthCheck.Message = $"[WARNING] {DateTime.UtcNow}_NOTIFICATION_NOT_OK";
+            }
+
+            /// Add the messages to the table
+
+            await _repository.AddHealthCheckInfoAsync(portfolioHealthCheck);
+            await _repository.AddHealthCheckInfoAsync(notificationHealthCheck);
+            if (portfolioHealthCheck.Message.Contains("WARNING"))
+            {
+                //await MailHelper.SendServiceDown(AdminConsoleServiceProvider.adminEmails, "Portfolio service");
+            }
+            if (notificationHealthCheck.Message.Contains("WARNING"))
+            {
+                //await MailHelper.SendServiceDown(AdminConsoleServiceProvider.adminEmails, "Notification service");
+
+            }
+        }
+
 
         public override void OnStop()
         {
@@ -70,6 +144,7 @@ namespace HealthMonitoringService
             while (!cancellationToken.IsCancellationRequested)
             {
                 Trace.TraceInformation("Health service working");
+                await TestServicesAsync();
                 await Task.Delay(1000 + r.Next(0, 4001));
             }
         }
