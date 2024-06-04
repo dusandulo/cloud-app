@@ -45,11 +45,16 @@
         @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control" })
         @Html.ValidationMessageFor(m => m.PhoneNumber)
     </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Password)
+        @Html.TextBoxFor(m => m.Password, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Password)
+    </div>
 
     <div>
         @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
         {
-            <img src="@Model.ProfilePictureUrl" alt="Image" style="max-width: 300px;"/>
+            <img src="@Model.ProfilePictureUrl" alt="Image" style="max-width: 300px;" />
         }
         else
         {
