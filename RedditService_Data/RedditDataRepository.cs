@@ -150,6 +150,21 @@ namespace RedditService_Data
             return _topicTable.ExecuteQuery(query).ToList();
         }
 
+        public async Task<List<Topic>> RetrieveAllTopicsAsync()
+        {
+            var query = new TableQuery<Topic>().Where(TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, "Topic"));
+            TableQuerySegment<Topic> resultSegment = null;
+            List<Topic> topics = new List<Topic>();
+
+            while (resultSegment == null || resultSegment.ContinuationToken != null)
+            {
+                resultSegment = await _topicTable.ExecuteQuerySegmentedAsync(query, resultSegment?.ContinuationToken);
+                topics.AddRange(resultSegment.Results);
+            }
+
+            return topics;
+        }
+
         public void AddTopic(Topic newTopic)
         {
             TableOperation insertOperation = TableOperation.Insert(newTopic);

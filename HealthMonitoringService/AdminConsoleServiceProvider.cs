@@ -62,5 +62,14 @@ namespace HealthMonitoringService
                 return "Unauthorized";
             }
         }
+
+        public async Task<IEnumerable<Topic>> ListAllTopicsAsync(string adminKey)
+        {
+            if (_activeAdmins.Contains(adminKey))
+            {
+                return await _repository.RetrieveAllTopicsAsync();
+            }
+            return Enumerable.Empty<Topic>();
+        }
     }
 }
