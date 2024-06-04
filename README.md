@@ -39,7 +39,7 @@ Visual previews of the application pages to provide a better understanding of th
 | **Home**      | ![Home](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/pocetna.png) |
 | **AddTopic**  | ![AddTopic](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/new_topic.png) |
 | **AddComment**| ![AddComment](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/add_comment.png) |
-| **EditProfile**| ![EditProfile](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/pocetna.png) |
+| **EditProfile**| ![EditProfile](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/edit_profile.png) |
 | **LogIn**     | ![LogIn](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/login.png) |
 | **Register**  | ![Register](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/register.png) |
 | **HealthStatus** | ![HealthStatus](https://github.com/dusandulo/cloud-app/blob/main/imgpreviews/health_status.png) |
