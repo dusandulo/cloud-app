@@ -33,7 +33,8 @@ namespace AdminConsole
                     Console.WriteLine("Admin Console Menu:");
                     Console.WriteLine("[1] - List all users");
                     Console.WriteLine("[2] - List all topics");
-                    Console.WriteLine("[2] - Delete user by email");
+                    Console.WriteLine("[3] - List all subscriptions");
+                    Console.WriteLine("[4] - Delete user by email");
                     Console.WriteLine("[q] - Exit");
                     Console.WriteLine();
                     Console.Write("Select an option: ");
@@ -48,6 +49,9 @@ namespace AdminConsole
                             ListAllTopics(res, proxy);
                             break;
                         case "3":
+                            ListAllSubscriptions(res, proxy);
+                            break;
+                        case "4":
                             DeleteUserUsers(res, proxy);
                             break;
                         case "q":
@@ -135,6 +139,34 @@ namespace AdminConsole
 
             // Footer
             Console.WriteLine(new String('=', titleWidth + contentWidth + 2 * votesWidth + dateWidth + userWidth + 13));
+            Console.WriteLine();  // Space after the table
+        }
+
+        private static async void ListAllSubscriptions(string adminKey, IAdminConsole proxy)
+        {
+            var subscriptions = await proxy.ListAllSubscriptionsAsync(adminKey);
+            // Define column widths
+            int emailWidth = 30;
+            int topicIdWidth = 30;
+
+            // Header
+            Console.WriteLine("\nList of Subscriptions:");
+            Console.WriteLine(new String('=', emailWidth + topicIdWidth + 3));
+            Console.WriteLine(
+                $"{FormatColumn("Email", emailWidth)}|{FormatColumn("Topic ID", topicIdWidth)}"
+            );
+            Console.WriteLine(new String('-', emailWidth + topicIdWidth + 3));
+
+            // Data rows
+            foreach (var subscription in subscriptions)
+            {
+                Console.WriteLine(
+                    $"{FormatColumn(subscription.Email, emailWidth)}|{FormatColumn(subscription.TopicId, topicIdWidth)}"
+                );
+            }
+
+            // Footer
+            Console.WriteLine(new String('=', emailWidth + topicIdWidth + 3));
             Console.WriteLine();  // Space after the table
         }
 

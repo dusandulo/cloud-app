@@ -71,5 +71,14 @@ namespace HealthMonitoringService
             }
             return Enumerable.Empty<Topic>();
         }
+
+        public async Task<IEnumerable<Subscription>> ListAllSubscriptionsAsync(string adminKey)
+        {
+            if (_activeAdmins.Contains(adminKey))
+            {
+                return await _repository.RetrieveAllSubscriptionsAsync();
+            }
+            return Enumerable.Empty<Subscription>();
+        }
     }
 }
