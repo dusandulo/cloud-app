@@ -32,6 +32,7 @@ namespace AdminConsole
                 {
                     Console.WriteLine("Admin Console Menu:");
                     Console.WriteLine("[1] - List all users");
+                    Console.WriteLine("[2] - List all topics");
                     Console.WriteLine("[2] - Delete user by email");
                     Console.WriteLine("[q] - Exit");
                     Console.WriteLine();
@@ -44,10 +45,10 @@ namespace AdminConsole
                             ListAllUsers(res, proxy);
                             break;
                         case "2":
-                            DeleteUserUsers(res, proxy);
+                            ListAllTopics(res, proxy);
                             break;
                         case "3":
-                            ListAllTopics(res, proxy);
+                            DeleteUserUsers(res, proxy);
                             break;
                         case "q":
                             Console.WriteLine("Exiting the Admin Console...");
