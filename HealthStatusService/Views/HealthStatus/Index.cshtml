@@ -2,56 +2,52 @@
     ViewBag.Title = "Health Status";
 }
 
-<h2>Health Status</h2>
+<h2 class="text-center my-4">Health Status</h2>
 
-<style>
-    .chart-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-    }
-
-    .chart-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .chart-container canvas {
-        width: 200px !important;
-        height: 200px !important;
-    }
-</style>
-
-<div class="chart-container">
-    <div class="chart-item">
-        <canvas id="redditChart"></canvas>
-        <p>Reddit Service</p>
-    </div>
-    <div class="chart-item">
-        <canvas id="notificationChart"></canvas>
-        <p>Notification Service</p>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <canvas id="redditChart"></canvas>
+                </div>
+                <div class="card-footer bg-transparent text-center">
+                    Reddit Service
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <canvas id="notificationChart"></canvas>
+                </div>
+                <div class="card-footer bg-transparent text-center">
+                    Notification Service
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- Include Bootstrap JS and Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     var ctxReddit = document.getElementById('redditChart').getContext('2d');
     var redditChart = new Chart(ctxReddit, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: ['OK', 'NOT OK'],
             datasets: [{
                 label: 'Reddit Service',
                 data: [@ViewBag.RedditOkCount, @ViewBag.RedditNotOkCount],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)'
                 ],
                 borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)'
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
                 ],
                 borderWidth: 1
             }]
@@ -65,25 +61,26 @@
                 tooltip: {
                     enabled: true,
                 }
-            }
+            },
+            cutout: '70%'
         }
     });
 
     var ctxNotification = document.getElementById('notificationChart').getContext('2d');
     var notificationChart = new Chart(ctxNotification, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: ['OK', 'NOT OK'],
             datasets: [{
                 label: 'Notification Service',
                 data: [@ViewBag.NotificationOkCount, @ViewBag.NotificationNotOkCount],
                 backgroundColor: [
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
                 ],
                 borderColor: [
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(255, 99, 132, 1)'
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
                 ],
                 borderWidth: 1
             }]
@@ -97,7 +94,8 @@
                 tooltip: {
                     enabled: true,
                 }
-            }
+            },
+            cutout: '70%'
         }
     });
 </script>
